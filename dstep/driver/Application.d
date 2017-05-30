@@ -68,12 +68,12 @@ class Application
                 if (config.output.length)
                     outputFilename = config.output;
                 else
-                    outputFilename = defaultOutputFilename(fileName, false);
+                    outputFilename = defaultOutputFilename(fileName, true);
             }
             else
             {
                 outputFilename = Path.buildPath(config.output,
-                    defaultOutputFilename(fileName, false));
+                    defaultOutputFilename(fileName, true));
             }
 
             string outputDir = Path.dirName(outputFilename);
