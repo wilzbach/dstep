@@ -171,7 +171,7 @@ struct Clang
 {
     string version_;
     string baseUrl;
-    string filename;
+    string[] filenames;
     string basePath;
 
     version (linux)
@@ -385,20 +385,25 @@ private:
         version (FreeBSD)
         {
             version (D_LP64)
-                enum filename = "clang+llvm-%1s-amd64-unknown-freebsd10.tar.xz";
+                enum filenames = ["clang+llvm-%1s-amd64-unknown-freebsd10.tar.xz"];
 
             else
-                enum filename = "clang+llvm-%1s-i386-unknown-freebsd10.tar.xz";
+                enum filenames = ["clang+llvm-%1s-i386-unknown-freebsd10.tar.xz"];
         }
 
         else version (linux)
         {
-            string filename;
+            string[] filenames;
 
             if (System.isUbuntu || System.isTravis)
             {
                 version (D_LP64)
-                    filename = "clang+llvm-%1s-x86_64-linux-gnu-ubuntu-14.04.tar.xz";
+                {
+                    filenames = [
+                        "clang+llvm-%1s-x86_64-linux-gnu-ubuntu-14.04.tar.xz",
+                        "clang+llvm-%1s-linux-x86_64-ubuntu14.04.tar.xz"
+                    ];
+                }
                 else
                     unsupported();
             }
@@ -406,7 +411,7 @@ private:
             else if (System.isDebian)
             {
                 version (D_LP64)
-                    filename = "clang+llvm-%1s-x86_64-linux-gnu-debian8.tar.xz";
+                    filenames = ["clang+llvm-%1s-x86_64-linux-gnu-debian8.tar.xz"];
                 else
                     unsupported();
             }
@@ -414,9 +419,9 @@ private:
             else if (System.isFedora)
             {
                 version (D_LP64)
-                    filename = "clang+llvm-%1s-x86_64-fedora23.tar.xz";
+                    filenames = ["clang+llvm-%1s-x86_64-fedora23.tar.xz"];
                 else
-                    filename = "clang+llvm-%1s-i686-fedora23.tar.xz";
+                    filenames = ["clang+llvm-%1s-i686-fedora23.tar.xz"];
             }
 
             else
@@ -426,17 +431,17 @@ private:
         else version (OSX)
         {
             version (D_LP64)
-                enum filename = "clang+llvm-%1s-x86_64-apple-darwin.tar.xz";
+                enum filenames = ["clang+llvm-%1s-x86_64-apple-darwin.tar.xz"];
 
             else
                 static assert(false, "Only 64bit versions of OS X are supported");
         }
 
         else version (Win32)
-            enum filename = "LLVM-%1s-win32.exe";
+            enum filenames = ["LLVM-%1s-win32.exe"];
 
         else version (Win64)
-            enum filename = "LLVM-%1s-win64.exe";
+            enum filenames = ["LLVM-%1s-win64.exe"];
 
         else
             static assert(false, "Unsupported platform");
@@ -445,9 +450,9 @@ private:
 
         auto llvmVersion = environment.get("LLVM_VERSION", defaultLLVMVersion);
         auto baseUrl = format("http://releases.llvm.org/%1s/", llvmVersion);
-        auto filenameWithVersion = format(filename, llvmVersion);
+        auto filenamesWithVersion = filenames.map!(e => format(e, llvmVersion));
 
-        return [Clang(llvmVersion, baseUrl, filenameWithVersion, basePath)];
+        return [Clang(llvmVersion, baseUrl, filenamesWithVersion, basePath)];
     }
 }
 
