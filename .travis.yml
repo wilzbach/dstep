@@ -34,5 +34,3 @@ matrix:
   exclude:
     - env: LLVM_VERSION=3.9.1
       os: osx
-    - env: LLVM_VERSION=5.0.0
-      os: linux
