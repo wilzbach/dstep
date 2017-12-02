@@ -4,7 +4,7 @@
  * Version: Initial created: Apr 08, 2016
  * License: $(LINK2 http://www.boost.org/LICENSE_1_0.txt, Boost Software License 1.0)
  */
-import Common;
+import tests.support.Assertions;
 
 import std.algorithm : canFind;
 import std.process : executeShell;

@@ -10,8 +10,6 @@
     "targetPath": "bin",
 
     "buildRequirements": ["silenceWarnings"],
-    "sourcePaths": ["dstep", "clang"],
-    "importPaths": ["."],
     "stringImportPaths": ["resources"],
 
     "preGenerateCommands": [
@@ -20,18 +18,13 @@
 
     "lflags-osx": ["-macosx_version_min", "10.7", "-lcrt1.o"],
 
-    "buildTypes": {
-        "unittest": {
-            "buildRequirements" : [ "allowWarnings" ],
-            "buildOptions" : ["unittests", "debugMode", "debugInfo"]
-        },
-    },
-
     "configurations": [
         {
             "name": "default",
-            "mainSourceFile": "dstep/main.d",
             "targetName": "dstep",
+            "mainSourceFile": "dstep/main.d",
+            "sourcePaths": ["dstep", "clang"],
+            "importPaths": ["."],
 
             "preBuildCommands-posix": [
                 "(! [ -s linker_flags.txt ] && ./configure) || true"
@@ -43,19 +36,25 @@
         },
 
         {
-            "name": "test",
-            "mainSourceFile": "test.d",
-            "targetName": "test",
-            "sourceFiles": [ "tests/unit/HttpClient.d" ],
-            "excludedSourceFiles": ["dstep/*", "clang/*"],
+            "name": "functional",
+            "targetName": "functional",
+            "sourcePaths": ["tests/support"],
+            "sourceFiles": ["tests/functional/Tests.d", "dstep/driver/Util.d"],
+            "buildOptions": ["unittests", "debugMode", "debugInfo"],
+            "dflags": ["-main"],
+
+            "preBuildCommands-posix": [
+                "DFLAGS=; if ! [ -s bin/dstep ]; then dub build; fi"
+            ]
         },
 
         {
-            "name": "unittest",
-            "mainSourceFile": "unittest.d",
-            "targetName": "unittest",
-            "sourcePaths": ["dstep", "clang", "tests/unit"],
+            "name": "unit",
+            "targetName": "unit",
+            "sourcePaths": ["dstep", "clang", "tests/unit", "tests/support"],
             "excludedSourceFiles": ["dstep/main.d"],
+            "dflags": ["-main"],
+            "buildOptions" : ["unittests", "debugMode", "debugInfo"],
 
             "preBuildCommands-posix": [
                 "(! [ -s linker_flags.txt ] && ./configure) || true"

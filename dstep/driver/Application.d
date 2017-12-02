@@ -41,6 +41,8 @@ class Application
     {
         import std.exception : enforce;
 
+        import dstep.driver.Util : defaultOutputFilename;
+
         enforce!DStepException(config.inputFiles.length > 0,
             "dstep: error: must supply at least one input file\n");
 
@@ -115,14 +117,6 @@ class Application
     {
         ParseFile(config, fileName, outputFilename)
             .startConversion();
-    }
-
-    static string defaultOutputFilename (string inputFile, bool useBaseName = true)
-    {
-        if (useBaseName)
-            return Path.setExtension(Path.baseName(inputFile), "d");
-
-        return Path.setExtension(inputFile, "d");
     }
 }
 
