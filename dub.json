@@ -36,8 +36,10 @@
         },
 
         {
-            "name": "functional",
+            "name": "test:functional",
             "targetName": "functional",
+            "targetType": "executable",
+            "targetPath": "bin/test",
             "sourcePaths": ["tests/support"],
             "sourceFiles": ["tests/functional/Tests.d", "dstep/driver/Util.d"],
             "buildOptions": ["unittests", "debugMode", "debugInfo"],
@@ -49,8 +51,10 @@
         },
 
         {
-            "name": "unit",
+            "name": "test:unit",
             "targetName": "unit",
+            "targetType": "executable",
+            "targetPath": "bin/test",
             "sourcePaths": ["dstep", "clang", "tests/unit", "tests/support"],
             "excludedSourceFiles": ["dstep/main.d"],
             "dflags": ["-main"],
@@ -67,8 +71,18 @@
         },
 
         {
+            "name": "test:library",
+            "targetName": "library",
+            "targetType": "executable",
+            "targetPath": "bin/test",
+            "mainSourceFile": "library_test.d"
+        },
+
+        {
             "name": "library",
             "targetType": "library",
+            "sourcePaths": ["dstep", "clang"],
+            "importPaths": ["."],
             "excludedSourceFiles": ["dstep/main.d"]
         }
     ],
