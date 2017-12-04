@@ -89,7 +89,7 @@ struct TestRunner
 
     void downloadClang()
     {
-        executeCommand("./download_llvm.sh");
+        executeCommand("dub", "tools/download_llvm.d");
     }
 
     /**
