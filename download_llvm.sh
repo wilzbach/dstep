@@ -90,14 +90,21 @@ function download_llvm {
   mkdir -p clangs
 
   if [ ! -f "$archive_path" ]; then
+    echo "Downloading LLVM $LLVM_VERSION to $archive_path"
     curl -L -o "$archive_path" "$(llvm_url)"
+  else
+    echo "LLVM $LLVM_VERSION already exists"
   fi
 }
 
 function extract_archive {
-  local archive=$(llvm_archive)
-  mkdir -p clangs/clang
-  tar xf "clangs/$archive" -C clangs/clang --strip-components=1
+  local archive_path="clangs/$(llvm_archive)"
+  local target_path="clangs/clang"
+
+  echo "Extracting $archive_path to $target_path"
+
+  mkdir -p "$target_path"
+  tar xf "$archive_path" -C "$target_path" --strip-components=1
 }
 
 download_llvm

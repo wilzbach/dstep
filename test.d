@@ -13,23 +13,41 @@ int main ()
     return TestRunner().run;
 }
 
+/**
+ * The available test groups.
+ *
+ * The tests will be run in the order specified here.
+ */
+enum TestGroup
+{
+    unit = "unit",
+    library = "library",
+    functional = "functional"
+}
+
 struct TestRunner
 {
     private string wd;
+    private bool clangVersionPrinted;
 
     int run ()
     {
-        int result = 0;
+        import std.traits : EnumMembers;
+
+        downloadClang();
         activate();
 
-        auto output = execute(["./bin/dstep", "--clang-version"]);
+        foreach (test ; EnumMembers!TestGroup)
+        {
+            immutable result = runTest(test);
 
-        writeln("Testing with ", strip(output.output));
-        result += unitTest();
-        result += libraryTest();
+            if (result != 0)
+                return result;
+        }
+
         stdout.flush();
 
-        return result;
+        return 0;
     }
 
     string workingDirectory ()
@@ -67,63 +85,56 @@ struct TestRunner
         }
         else
             execute(["./configure", "--llvm-path", "clangs/clang/lib"]);
-
-        build();
-        writeln(" [DONE]");
     }
 
-    int unitTest ()
+    void downloadClang()
     {
-        writeln("Running unit tests ");
-
-        auto result = executeShell(dubShellCommand("test"));
-
-        if (result.status != 0)
-            writeln(result.output);
-
-        return result.status;
+        executeCommand("./download_llvm.sh");
     }
 
     /**
-       Test that dstep can be used as a library by compiling a dependent
-       dub package
+     * Run a single group of tests, i.e. functional, library or unit test.
+     *
+     * Params:
+     *  testGroup = the test group to run
+     *
+     * Returns: the exist code of the test run
      */
-    int libraryTest ()
+    int runTest (TestGroup testGroup)
     {
-        const string[string] env;
-        const config = Config.none;
-        const maxOutput = size_t.max;
-        const workDir = "tests/functional/test_package";
-        const result = executeShell(dubShellCommand("build"),
-                                    env,
-                                    config,
-                                    maxOutput,
-                                    workDir);
+        printClangVersion();
+        writefln("Running %s tests ", testGroup);
+
+        immutable command = dubShellCommand("--config=test:" ~ testGroup);
+        immutable result = executeShell(command);
+
         if (result.status != 0)
             writeln(result.output);
 
         return result.status;
     }
 
-    void build ()
+    void printClangVersion()
     {
-        try
-        {
-            auto result = executeShell(dubShellCommand("build"));
+        import std.file : exists;
 
-            if (result.status != 0)
-            {
-                writeln(result.output);
-                throw new Exception("Failed to build DStep");
-            }
-        }
-        catch(ProcessException)
-        {
-            throw new ProcessException("Failed to execute dub");
-        }
+        if (clangVersionPrinted || !exists("bin/dstep"))
+            return;
+
+        auto output = execute(["./bin/dstep", "--clang-version"]);
+        writeln("Testing with ", strip(output.output));
+        clangVersionPrinted = true;
     }
 }
 
+void executeCommand(string[] args ...)
+{
+    import std.process : spawnProcess, wait;
+    import std.array : join;
+
+    if (spawnProcess(args).wait() != 0)
+        throw new Exception("Failed to execute command: " ~ args.join(' '));
+}
 
 private string dubShellCommand(string subCommand) @safe pure nothrow
 {
