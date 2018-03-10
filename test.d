@@ -34,7 +34,6 @@ struct TestRunner
     {
         import std.traits : EnumMembers;
 
-        downloadClang();
         activate();
 
         foreach (test ; EnumMembers!TestGroup)
@@ -85,11 +84,6 @@ struct TestRunner
         }
         else
             execute(["./configure", "--llvm-path", "clangs/clang/lib"]);
-    }
-
-    void downloadClang()
-    {
-        executeCommand("dub", "tools/download_llvm.d");
     }
 
     /**
