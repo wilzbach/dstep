@@ -1,7 +1,7 @@
 dist: trusty
 language: d
 d:
-  # - dmd
+  - dmd
   - ldc
 
 before_script: git fetch --unshallow
@@ -9,12 +9,12 @@ script: dub test --compiler=${DC}
 
 os:
   - linux
-  # - osx
+  - osx
 
 env:
   - LLVM_VERSION=4.0.0
-  # - LLVM_VERSION=3.9.1
-  # - LLVM_VERSION=3.9.0
+  - LLVM_VERSION=3.9.1
+  - LLVM_VERSION=3.9.0
 
 matrix:
   include:
@@ -32,6 +32,7 @@ matrix:
   exclude:
     - env: LLVM_VERSION=3.9.1
       os: osx
+
 jobs:
   include:
     # deployment
