@@ -1,7 +1,7 @@
 dist: trusty
 language: d
 d:
-  - dmd
+  # - dmd
   - ldc
 
 before_script: git fetch --unshallow
@@ -9,16 +9,16 @@ script: dub test --compiler=${DC}
 
 os:
   - linux
-  - osx
+  # - osx
 
 env:
   - LLVM_VERSION=4.0.0
-  - LLVM_VERSION=3.9.1
-  - LLVM_VERSION=3.9.0
+  # - LLVM_VERSION=3.9.1
+  # - LLVM_VERSION=3.9.0
 
 matrix:
-  # beta and nightly builds for DMD and LDC
   include:
+    # beta and nightly builds for DMD and LDC
     - &entry
       d: dmd-beta
       os: linux
@@ -31,4 +31,26 @@ matrix:
   # missing binaries from http://releases.llvm.org
   exclude:
     - env: LLVM_VERSION=3.9.1
+      os: osx
+jobs:
+  include:
+    # deployment
+    - &deploy
+      stage: deploy
+      d: ldc
+      os: linux
+      env: LLVM_VERSION=4.0.0
+      script: ./tools/build_release.sh
+      deploy:
+        provider: releases
+        api_key:
+          secure: ABIe03HKvDC29vq9iwjNR2CdVzR+hwb987xQ00TaeuiBzcqAWagdNgKT2Flkqmsce0ppDN6XcMQqvJ7oi5fEkJ3rJB/Amws7dKzxglZKHDqHqskL6RzVpNIOvbcN0hv/FuQm+w4ha5/VbzMrGtYgYXCZYQQeT12pNrKZSuUoGEE=
+        draft: true
+        tag_name: $TRAVIS_TAG
+        file_glob: true
+        file: dstep*.tar.xz
+        skip_cleanup: true
+        # on:
+        #   tags: true
+    - <<: *deploy
       os: osx
